@@ -8,6 +8,7 @@ import Monitoring from "./pages/Monitoring";
 import Prediction from "./pages/Prediction";
 import Automation from "./pages/Automation";
 import Reports from "./pages/Reports";
+import AddDevice from "./pages/AddDevice";
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
           <Route path="automation" element={<Automation />} />
 
           <Route path="reports" element={<Reports />} />
+
+          <Route path="add-device" element={<AddDevice />} />
 
         </Route>
 
