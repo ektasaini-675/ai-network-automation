@@ -9,13 +9,12 @@ import Prediction from "./pages/Prediction";
 import Automation from "./pages/Automation";
 import Reports from "./pages/Reports";
 import AddDevice from "./pages/AddDevice";
+import Alerts from "./pages/Alerts";
 
 function App() {
   return (
     <BrowserRouter>
-
       <Routes>
-
         <Route path="/" element={<Layout />}>
 
           <Route index element={<Dashboard />} />
@@ -26,6 +25,8 @@ function App() {
 
           <Route path="prediction" element={<Prediction />} />
 
+          <Route path="alerts" element={<Alerts />} />
+
           <Route path="automation" element={<Automation />} />
 
           <Route path="reports" element={<Reports />} />
@@ -33,9 +34,7 @@ function App() {
           <Route path="add-device" element={<AddDevice />} />
 
         </Route>
-
       </Routes>
-
     </BrowserRouter>
   );
 }

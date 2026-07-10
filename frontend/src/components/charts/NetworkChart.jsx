@@ -19,13 +19,16 @@ const data = [
 
 export default function NetworkChart() {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 mt-8">
-      <h2 className="text-xl font-semibold mb-4">
-        Network Health
+    <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+
+      <h2 className="text-xl font-bold mb-6">
+        CPU Usage Trend
       </h2>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={350}>
+
         <LineChart data={data}>
+
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis dataKey="time" />
@@ -40,8 +43,11 @@ export default function NetworkChart() {
             stroke="#2563eb"
             strokeWidth={3}
           />
+
         </LineChart>
+
       </ResponsiveContainer>
+
     </div>
   );
 }

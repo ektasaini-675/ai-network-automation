@@ -1,79 +1,133 @@
+import { useEffect, useState } from "react";
+
 import StatCard from "../components/cards/StatCard";
 import NetworkChart from "../components/charts/NetworkChart";
 import DeviceTable from "../components/tables/DeviceTable";
+
 import useDevices from "../hooks/useDevices";
+
+import { getDashboardStats } from "../services/dashboardService";
 
 import {
   Router,
   ShieldCheck,
   TriangleAlert,
   Cpu,
+  MemoryStick,
+  Bell,
 } from "lucide-react";
 
 export default function Dashboard() {
 
-  // Fetch devices from backend
   const { devices, loading, refresh } = useDevices();
 
-  // Dashboard statistics
-  const stats = [
+  const [stats, setStats] = useState(null);
+
+  async function loadDashboard() {
+
+    try {
+
+      const data = await getDashboardStats();
+
+      setStats(data);
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
+  useEffect(() => {
+
+    loadDashboard();
+
+  }, []);
+
+  if (!stats) {
+
+    return (
+      <div className="text-center mt-20">
+        Loading Dashboard...
+      </div>
+    );
+
+  }
+
+  const cards = [
+
     {
-      title: "Active Devices",
-      value: devices.length,
-      icon: <Router size={40} />,
+      title: "Devices",
+      value: stats.total_devices,
+      icon: <Router size={36} />,
       color: "text-blue-600",
     },
+
     {
-      title: "Healthy Devices",
-      value: devices.filter(
-        (d) => d.status === "Online"
-      ).length,
-      icon: <ShieldCheck size={40} />,
+      title: "Online",
+      value: stats.online_devices,
+      icon: <ShieldCheck size={36} />,
       color: "text-green-600",
     },
+
     {
-      title: "Offline Devices",
-      value: devices.filter(
-        (d) => d.status === "Offline"
-      ).length,
-      icon: <TriangleAlert size={40} />,
+      title: "Offline",
+      value: stats.offline_devices,
+      icon: <TriangleAlert size={36} />,
       color: "text-red-600",
     },
+
     {
-      title: "CPU Usage",
-      value: "67%",
-      icon: <Cpu size={40} />,
+      title: "Avg CPU",
+      value: `${stats.average_cpu}%`,
+      icon: <Cpu size={36} />,
       color: "text-orange-500",
     },
+
+    {
+      title: "Avg Memory",
+      value: `${stats.average_memory}%`,
+      icon: <MemoryStick size={36} />,
+      color: "text-purple-600",
+    },
+
+    {
+      title: "Alerts",
+      value: stats.alerts,
+      icon: <Bell size={36} />,
+      color: "text-yellow-500",
+    },
+
   ];
 
   return (
+
     <div>
 
-      <h1 className="text-3xl font-bold">
-        Dashboard
+      <h1 className="text-4xl font-bold mb-2">
+        Network Operations Center
       </h1>
 
       <p className="text-gray-500 mb-8">
-        Welcome to NetVision AI
+        AI Network Automation Dashboard
       </p>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-        {stats.map((card) => (
+        {cards.map((card) => (
+
           <StatCard
             key={card.title}
             {...card}
           />
+
         ))}
 
       </div>
 
-      {/* Chart */}
       <NetworkChart />
 
-      {/* Device Table */}
       <DeviceTable
         devices={devices}
         loading={loading}
@@ -81,5 +135,7 @@ export default function Dashboard() {
       />
 
     </div>
+
   );
+
 }

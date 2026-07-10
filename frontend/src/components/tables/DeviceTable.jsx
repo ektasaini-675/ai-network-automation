@@ -12,11 +12,9 @@ export default function DeviceTable({
   refresh,
 }) {
 
-  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
 
-  // Delete Device
   async function handleDelete(id) {
 
     const confirmDelete = window.confirm(
@@ -35,13 +33,12 @@ export default function DeviceTable({
 
       console.error(error);
 
-      alert("Failed to delete device");
+      alert("Failed to delete device.");
 
     }
 
   }
 
-  // Open Edit Modal
   function handleEdit(device) {
 
     setSelectedDevice(device);
@@ -60,105 +57,162 @@ export default function DeviceTable({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-md p-6 mt-8">
 
-        <h2 className="text-xl font-semibold mb-6">
+      <div className="bg-white rounded-2xl shadow-lg p-6 mt-8">
+
+        <h2 className="text-2xl font-bold mb-6">
           Device Status
         </h2>
 
-        <table className="w-full">
+        <div className="overflow-x-auto">
 
-          <thead>
+          <table className="min-w-full">
 
-            <tr className="border-b">
+            <thead>
 
-              <th className="text-left py-3">Hostname</th>
-              <th className="text-left py-3">IP Address</th>
-              <th className="text-left py-3">Type</th>
-              <th className="text-left py-3">Location</th>
-              <th className="text-left py-3">Status</th>
-              <th className="text-left py-3">Actions</th>
+              <tr className="border-b bg-gray-100">
 
-            </tr>
+                <th className="text-left py-4 px-3">Hostname</th>
 
-          </thead>
+                <th className="text-left py-4 px-3">IP Address</th>
 
-          <tbody>
+                <th className="text-left py-4 px-3">Type</th>
 
-            {devices.map((device) => (
+                <th className="text-left py-4 px-3">Location</th>
 
-              <tr
-                key={device.id}
-                className="border-b hover:bg-gray-50"
-              >
+                <th className="text-left py-4 px-3">Status</th>
 
-                <td className="py-3">
-                  {device.hostname}
-                </td>
-
-                <td>{device.ip_address}</td>
-
-                <td>{device.device_type}</td>
-
-                <td>{device.location}</td>
-
-                <td>
-
-                  <span
-                    className={`px-3 py-1 rounded-full text-white ${
-                      device.status === "Online"
-                        ? "bg-green-500"
-                        : "bg-red-500"
-                    }`}
-                  >
-                    {device.status}
-                  </span>
-
-                </td>
-
-                <td className="flex gap-3 py-3">
-
-                  <button
-                    onClick={() => handleEdit(device)}
-                    className="text-blue-600 hover:text-blue-800"
-                    title="Edit Device"
-                  >
-                    <Pencil size={18} />
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(device.id)}
-                    className="text-red-600 hover:text-red-800"
-                    title="Delete Device"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-
-                </td>
+                <th className="text-center py-4 px-3">
+                  Actions
+                </th>
 
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {devices.length === 0 ? (
+
+                <tr>
+
+                  <td
+                    colSpan="6"
+                    className="text-center py-12 text-gray-500"
+                  >
+                    No devices found.
+                  </td>
+
+                </tr>
+
+              ) : (
+
+                devices.map((device) => (
+
+                  <tr
+                    key={device.id}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
+
+                    <td className="px-3 py-4 font-medium">
+                      {device.hostname}
+                    </td>
+
+                    <td className="px-3 py-4">
+                      {device.ip_address}
+                    </td>
+
+                    <td className="px-3 py-4">
+                      {device.device_type}
+                    </td>
+
+                    <td className="px-3 py-4">
+                      {device.location}
+                    </td>
+
+                    <td className="px-3 py-4">
+
+                      <span
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${
+                          device.status === "Online"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+
+                        <span>
+
+                          {device.status === "Online"
+                            ? "🟢"
+                            : "🔴"}
+
+                        </span>
+
+                        {device.status}
+
+                      </span>
+
+                    </td>
+
+                    <td className="px-3 py-4">
+
+                      <div className="flex justify-center gap-2">
+
+                        <button
+                          onClick={() => handleEdit(device)}
+                          className="p-2 rounded-lg hover:bg-blue-100 transition"
+                          title="Edit Device"
+                        >
+                          <Pencil
+                            size={18}
+                            className="text-blue-600"
+                          />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(device.id)}
+                          className="p-2 rounded-lg hover:bg-red-100 transition"
+                          title="Delete Device"
+                        >
+                          <Trash2
+                            size={18}
+                            className="text-red-600"
+                          />
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
-      {/* Edit Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Edit Device"
       >
+
         <EditDeviceForm
           device={selectedDevice}
           refresh={refresh}
           onClose={() => setIsModalOpen(false)}
         />
+
       </Modal>
 
     </>
   );
+
 }

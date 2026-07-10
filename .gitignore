@@ -23,3 +23,9 @@ frontend/dist/
 # ---------- OS ----------
 .DS_Store
 Thumbs.db
+
+# Temporary Files
+project-tree.txt
+
+# Root node modules (if present)
+node_modules/

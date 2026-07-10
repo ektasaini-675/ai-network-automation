@@ -6,6 +6,7 @@ from database.crud import (
     create_device,
     get_devices,
     get_device,
+    update_device,
     delete_device,
 )
 
@@ -32,6 +33,22 @@ def single_device(device_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Device not found")
 
     return device
+
+@router.put("/{device_id}", response_model=DeviceResponse)
+def edit_device(
+    device_id: int,
+    device: DeviceCreate,
+    db: Session = Depends(get_db),
+):
+    updated_device = update_device(db, device_id, device)
+
+    if not updated_device:
+        raise HTTPException(
+            status_code=404,
+            detail="Device not found",
+        )
+
+    return updated_device
 
 
 @router.delete("/{device_id}")
