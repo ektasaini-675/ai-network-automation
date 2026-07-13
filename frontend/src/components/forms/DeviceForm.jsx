@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createDevice } from "../../services/deviceService";
+import toast from "react-hot-toast";
 
 export default function DeviceForm() {
 
@@ -24,7 +25,7 @@ export default function DeviceForm() {
     try {
       await createDevice(form);
 
-      alert("Device Added Successfully!");
+      toast.success("Device added successfully!");
 
       setForm({
         hostname: "",
@@ -36,7 +37,7 @@ export default function DeviceForm() {
 
     } catch (err) {
       console.error(err);
-      alert("Failed to add device.");
+      toast.error("Failed to add device.");
     }
   };
 

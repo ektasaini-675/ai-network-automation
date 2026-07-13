@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.dashboard import router as dashboard_router
 from routes.alerts import router as alerts_router
 from routes.automation import router as automation_router
+from routes.prediction import router as prediction_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -61,6 +62,12 @@ app.include_router(
     automation_router,
     prefix="/automation",
     tags=["Automation"]
+)
+
+app.include_router(
+    prediction_router,
+    prefix="/prediction",
+    tags=["AI Prediction"]
 )
 
 @app.get("/")

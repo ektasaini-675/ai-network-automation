@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { updateDevice } from "../../services/deviceService";
+import toast from "react-hot-toast";
 
 export default function EditDeviceForm({
   device,
@@ -36,11 +37,13 @@ export default function EditDeviceForm({
 
       refresh();
 
+      toast.success("Device updated successfully!");
+
       onClose();
 
     } catch (error) {
       console.error(error);
-      alert("Failed to update device.");
+      toast.error("Failed to update device.");
     }
   }
 

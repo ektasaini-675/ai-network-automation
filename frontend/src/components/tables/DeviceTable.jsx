@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
-
+import toast from "react-hot-toast";
 import { deleteDevice } from "../../services/deviceService";
-
 import Modal from "../common/Modal";
 import EditDeviceForm from "../forms/EditDeviceForm";
 
@@ -29,11 +28,13 @@ export default function DeviceTable({
 
       refresh();
 
+      toast.success("Device deleted successfully!");
+
     } catch (error) {
 
       console.error(error);
 
-      alert("Failed to delete device.");
+      toast.error("Failed to delete device.");
 
     }
 

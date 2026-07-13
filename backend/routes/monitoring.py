@@ -48,9 +48,14 @@ def monitor_all_devices(db: Session = Depends(get_db)):
     for device in devices:
 
         cpu = round(random.uniform(5, 95), 2)
+
         memory = round(random.uniform(20, 90), 2)
+
         latency = round(random.uniform(1, 100), 2)
+
         packet_loss = round(random.uniform(0, 5), 2)
+
+        bandwidth = round(random.uniform(20, 100), 2)
 
         health_score, health_status, recommendation = calculate_health(
             cpu,
@@ -62,17 +67,29 @@ def monitor_all_devices(db: Session = Depends(get_db)):
         monitoring_data.append({
 
             "id": device.id,
+
             "hostname": device.hostname,
+
             "ip_address": device.ip_address,
+
             "device_type": device.device_type,
 
+            "location": device.location,
+
             "cpu_usage": cpu,
+
             "memory_usage": memory,
+
             "latency": latency,
+
             "packet_loss": packet_loss,
 
+            "bandwidth": bandwidth,
+
             "health_score": health_score,
+
             "status": health_status,
+
             "recommendation": recommendation
 
         })

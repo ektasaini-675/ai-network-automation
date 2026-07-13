@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../services/api";
 import DeviceSelector from "../components/common/DeviceSelector";
+import toast from "react-hot-toast";
 
 export default function Automation() {
 
@@ -12,7 +13,7 @@ export default function Automation() {
 
     if (!deviceId) {
 
-      alert("Please select a device.");
+      toast.error("Please select a device.");
 
       return;
 
@@ -28,11 +29,13 @@ export default function Automation() {
 
       setResult(response.data);
 
+      toast.success(`${response.data.action} completed successfully!`);
+
     } catch (error) {
 
       console.error(error);
 
-      alert("Automation request failed.");
+      toast.error("Automation request failed.");
 
     } finally {
 
