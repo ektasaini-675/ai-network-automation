@@ -1,184 +1,206 @@
-# AI-Powered Network Fault Prediction & Automation Platform
+# NetVision AI
 
-A working prototype built for the Airtel NOC internship project. Everything
-here runs on simulated network data today, and is structured so you can
-swap in real devices the moment you get access/credentials from your NOC
-team — without rewriting anything.
+**AI-Powered Network Operations Center**
+
+NetVision AI is a full-stack AI-powered Network Operations Center (NOC) developed using **React**, **FastAPI**, **SQLite**, and **Machine Learning**. The application provides real-time network monitoring, AI-driven device health prediction, intelligent alert generation, automation, and reporting through a modern web interface.
 
 ---
 
-## What's actually in this project
+## Project Overview
+
+Modern enterprise networks require continuous monitoring and proactive maintenance to ensure high availability and performance. NetVision AI addresses this challenge by integrating real-time telemetry simulation with a machine learning model to analyze network health and generate actionable recommendations.
+
+The project demonstrates the integration of frontend development, backend APIs, database management, telemetry simulation, and machine learning into a single enterprise-style application.
+
+---
+
+## Features
+
+- Device Management (CRUD Operations)
+- Real-time Network Device Monitoring
+- AI-Based Health Prediction using Random Forest
+- Telemetry Simulation for Live Device Metrics
+- Intelligent Alert Generation
+- AI Recommendations
+- Dashboard with Live Statistics
+- Reports Generation
+- Automation Module
+- RESTful API Architecture
+- Responsive User Interface
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|--------|------------|
+| Frontend | React, Vite, Tailwind CSS |
+| Backend | FastAPI |
+| Database | SQLite |
+| Machine Learning | Scikit-learn (Random Forest) |
+| Charts | Recharts |
+| HTTP Client | Axios |
+| Version Control | Git & GitHub |
+
+---
+
+## System Architecture
 
 ```
-noc-ai-platform/
+React Frontend
+        │
+        ▼
+ FastAPI REST APIs
+        │
+        ▼
+Telemetry Simulation Engine
+        │
+        ▼
+Random Forest ML Model
+        │
+        ▼
+SQLite Database
+```
+
+---
+
+## Project Structure
+
+```
+ai-network-automation/
 │
-├── collector/
-│   ├── snmp_collector.py     # Polls devices (real SNMP code + simulator)
-│   └── run_collector.py      # Main script: registers devices, polls them, saves data
+├── backend/
+│   ├── database/
+│   ├── ml/
+│   ├── routes/
+│   ├── schemas/
+│   ├── services/
+│   ├── main.py
+│   └── seed_devices.py
 │
-├── database/
-│   └── db_manager.py         # SQLite storage (devices, metrics, anomalies, alerts, backups)
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── App.jsx
 │
-├── ml/
-│   └── anomaly_detector.py   # Isolation Forest model — trains + detects faults
-│
-├── automation/
-│   ├── automation_engine.py  # Config backup, threshold alerts, health reports
-│   └── scheduler.py          # Runs everything automatically on a schedule
-│
-├── dashboard/
-│   ├── app.py                 # Flask web server (the dashboard backend)
-│   └── templates/index.html   # The dashboard UI (NOC-style dark theme)
-│
-├── data/                      # SQLite database lives here (auto-created)
-├── backups/                   # Generated config backups land here
-├── reports/                   # Generated HTML health reports land here
+├── README.md
 └── requirements.txt
 ```
 
 ---
 
-## How to run it (step by step)
+## Installation
 
-### 1. Install Python dependencies
-
-Open a terminal in this folder and run:
+### Clone the Repository
 
 ```bash
+git clone https://github.com/ektasaini-675/ai-network-automation.git
+
+cd ai-network-automation
+```
+
+### Backend Setup
+
+```bash
+cd backend
+
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# Linux / macOS
+source venv/bin/activate
+
 pip install -r requirements.txt
+
+uvicorn main:app --reload
 ```
 
-If `pip` doesn't work, try `pip3 install -r requirements.txt`.
-
-### 2. Collect some data first
-
-Before the dashboard or ML has anything to show, you need data in the
-database. Run:
+### Frontend Setup
 
 ```bash
-python collector/run_collector.py
+cd frontend
+
+npm install
+
+npm run dev
 ```
-
-This will:
-- Register 5 sample devices (2 routers, 2 switches, 1 firewall)
-- Start polling them every 5 seconds with realistic simulated metrics
-- Save everything into `data/noc_metrics.db`
-
-**Let this run for at least 2-3 minutes** before stopping it (Ctrl+C), so
-you have enough data points for the dashboard and ML model to be
-meaningful. The longer you let it run, the better.
-
-### 3. Train the ML model and test anomaly detection
-
-```bash
-python ml/anomaly_detector.py
-```
-
-This trains one Isolation Forest model per device using whatever data
-you've collected so far, then immediately checks the most recent
-readings and prints any anomalies it finds.
-
-### 4. Run automation tasks (backup, alerts, report)
-
-```bash
-python automation/automation_engine.py
-```
-
-This will:
-- Generate a simulated config backup file for every device (in `backups/`)
-- Check the latest readings against alert thresholds
-- Generate an HTML health report (in `reports/`) — open it in any browser
-
-### 5. Launch the live dashboard
-
-```bash
-python dashboard/app.py
-```
-
-Then open your browser to: **http://127.0.0.1:5000**
-
-You'll see:
-- A summary bar (total devices, up/down count, anomalies, alerts)
-- A live device table (click any row to see its graphs)
-- CPU/Memory and Latency/Packet-loss charts
-- A feed of AI-detected anomalies and alerts
-
-The dashboard auto-refreshes every 5 seconds.
-
-### 6. (Optional) Run everything automatically on a schedule
-
-Instead of running steps 3 and 4 manually, you can run:
-
-```bash
-python automation/scheduler.py
-```
-
-This keeps running in the background and automatically re-runs anomaly
-detection + threshold checks every minute, and backups + reports every
-10 minutes — simulating what this would look like in 24/7 production.
-
-**For a full demo**, run the collector (step 2) in one terminal, the
-scheduler (step 6) in a second terminal, and the dashboard (step 5) in a
-third terminal — all at the same time. Then open the dashboard in your
-browser and watch it update live.
 
 ---
 
-## How each piece maps to your problem statement
+## API Endpoints
 
-| Problem Statement Requirement | Where it's implemented |
-|---|---|
-| Collect real-time metrics via management protocols | `collector/snmp_collector.py` — real SNMP code included, using simulation today |
-| Centralized historical database | `database/db_manager.py` — SQLite (swap for InfluxDB/PostgreSQL later) |
-| Interactive dashboard | `dashboard/app.py` + `dashboard/templates/index.html` |
-| Threshold-based alerts | `automation/automation_engine.py` → `run_threshold_check_all_devices()` |
-| ML-based anomaly detection / fault prediction | `ml/anomaly_detector.py` — Isolation Forest |
-| Automated config backups | `automation/automation_engine.py` → `run_backup_all_devices()` |
-| Scheduled health reports | `automation/automation_engine.py` → `generate_health_report()` |
-| Automation of routine NOC tasks | `automation/scheduler.py` |
-
----
-
-## Switching from simulated data to real devices (when you get access)
-
-1. In `collector/snmp_collector.py`, change:
-   ```python
-   SIMULATION_MODE = True
-   ```
-   to
-   ```python
-   SIMULATION_MODE = False
-   ```
-
-2. In `collector/run_collector.py`, update `DEVICE_INVENTORY` with real
-   device IPs and SNMP community strings (ask your NOC mentor for these).
-
-3. For config backups, edit `automation/automation_engine.py` and call
-   `backup_device_config_real()` instead of the simulated version —
-   you'll need SSH username/password for each device.
-
-Everything else (database, dashboard, ML) stays exactly the same — that's
-the whole point of separating these into modules.
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/devices` | Retrieve all devices |
+| POST | `/devices` | Add a new device |
+| GET | `/monitoring` | Live monitoring metrics |
+| GET | `/dashboard` | Dashboard statistics |
+| GET | `/alerts` | Active alerts |
+| GET | `/automation` | Automation details |
+| POST | `/prediction` | AI health prediction |
 
 ---
 
-## If something doesn't work
+## Machine Learning Workflow
 
-- **`ModuleNotFoundError`** → you forgot to run `pip install -r requirements.txt`
-- **Dashboard shows "No devices registered"** → run `collector/run_collector.py` first
-- **ML model says "need at least 30 readings"** → let the collector run longer
-- **Port 5000 already in use** → close other programs using that port, or
-  change `port=5000` to `port=5050` in `dashboard/app.py`
+```
+Network Dataset
+        │
+        ▼
+Data Preprocessing
+        │
+        ▼
+Random Forest Model Training
+        │
+        ▼
+Model Serialization (model.pkl)
+        │
+        ▼
+Real-Time Health Prediction
+        │
+        ▼
+Health Score, Risk Level & Recommendations
+```
 
 ---
 
-## Suggested order to present this to your manager
+## Key Highlights
 
-1. Show the **problem statement → solution mapping** table above
-2. Run the **collector** live for 30 seconds, show data appearing in console
-3. Run **anomaly_detector.py**, show it catching a simulated fault
-4. Open the **dashboard** in a browser, walk through each panel
-5. Open a generated **health report** HTML file
-6. Explain the **3-week plan**: Week 1 = collector + DB (done), Week 2 =
-   dashboard + alerts (done), Week 3 = ML + automation + polish (done in
-   prototype form — production version uses real Airtel devices)
+- Developed a full-stack AI-powered Network Operations Center.
+- Implemented RESTful APIs using FastAPI.
+- Integrated a Random Forest machine learning model for network health prediction.
+- Designed a responsive dashboard using React and Tailwind CSS.
+- Implemented telemetry simulation for realistic monitoring.
+- Developed intelligent alerts and reporting modules.
+- Applied modular architecture for scalability and maintainability.
+
+---
+
+## Future Enhancements
+
+- SNMP-based Live Device Monitoring
+- Docker Containerization
+- Role-Based Authentication
+- Cloud Deployment (AWS/Azure)
+- Time-Series Database Integration
+- Continuous Model Retraining
+- Predictive Failure Analysis
+- Real-Time WebSocket Updates
+
+---
+
+## Author
+
+**Ekta**
+
+B.Tech, Indian Institute of Technology (IIT) Jodhpur
+
+---
+
+## License
+
+This project is intended for educational and academic purposes.
