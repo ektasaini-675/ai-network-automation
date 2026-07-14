@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+
 from database.dependencies import get_db
 from database.models import DeviceDB
-import random
+from services.telemetry import generate_metrics
 
 router = APIRouter()
 
@@ -16,11 +17,14 @@ def get_alerts(db: Session = Depends(get_db)):
 
     for device in devices:
 
-        cpu = random.randint(10, 95)
-        memory = random.randint(20, 90)
-        latency = random.randint(5, 100)
+        metrics = generate_metrics(device.id)
 
-        if cpu > 80:
+        cpu = metrics["cpu"]
+        memory = metrics["memory"]
+        latency = metrics["latency"]
+        packet_loss = metrics["packet_loss"]
+
+        if cpu >= 85:
 
             alerts.append({
                 "device": device.hostname,
@@ -29,7 +33,7 @@ def get_alerts(db: Session = Depends(get_db)):
                 "value": f"{cpu}%"
             })
 
-        elif memory > 80:
+        if memory >= 85:
 
             alerts.append({
                 "device": device.hostname,
@@ -38,13 +42,22 @@ def get_alerts(db: Session = Depends(get_db)):
                 "value": f"{memory}%"
             })
 
-        elif latency > 70:
+        if latency >= 80:
 
             alerts.append({
                 "device": device.hostname,
                 "severity": "Warning",
                 "message": "High Latency",
                 "value": f"{latency} ms"
+            })
+
+        if packet_loss >= 3:
+
+            alerts.append({
+                "device": device.hostname,
+                "severity": "Critical",
+                "message": "Packet Loss Detected",
+                "value": f"{packet_loss}%"
             })
 
     return alerts

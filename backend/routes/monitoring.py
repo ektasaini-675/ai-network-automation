@@ -1,41 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-import random
 
 from database.dependencies import get_db
 from database.models import DeviceDB
+from ml.predictor import predict_device
+from services.telemetry import generate_metrics
 
 router = APIRouter()
-
-
-def calculate_health(cpu, memory, latency, packet_loss):
-
-    score = 100
-
-    score -= cpu * 0.30
-    score -= memory * 0.20
-    score -= latency * 0.15
-    score -= packet_loss * 8
-
-    score = max(0, round(score, 1))
-
-    if score >= 80:
-        health = "Healthy"
-        recommendation = "No action required."
-
-    elif score >= 60:
-        health = "Warning"
-        recommendation = "Monitor CPU and Memory."
-
-    elif score >= 40:
-        health = "Critical"
-        recommendation = "Restart network interface."
-
-    else:
-        health = "Failure Risk"
-        recommendation = "Immediate maintenance required."
-
-    return score, health, recommendation
 
 
 @router.get("/")
@@ -47,21 +18,16 @@ def monitor_all_devices(db: Session = Depends(get_db)):
 
     for device in devices:
 
-        cpu = round(random.uniform(5, 95), 2)
+        metrics = generate_metrics(device.id)
 
-        memory = round(random.uniform(20, 90), 2)
-
-        latency = round(random.uniform(1, 100), 2)
-
-        packet_loss = round(random.uniform(0, 5), 2)
-
-        bandwidth = round(random.uniform(20, 100), 2)
-
-        health_score, health_status, recommendation = calculate_health(
-            cpu,
-            memory,
-            latency,
-            packet_loss,
+        prediction = predict_device(
+            cpu_usage=metrics["cpu"],
+            memory_usage=metrics["memory"],
+            latency=metrics["latency"],
+            packet_loss=metrics["packet_loss"],
+            bandwidth=metrics["bandwidth"],
+            device_type=device.device_type,
+            location=device.location,
         )
 
         monitoring_data.append({
@@ -76,21 +42,25 @@ def monitor_all_devices(db: Session = Depends(get_db)):
 
             "location": device.location,
 
-            "cpu_usage": cpu,
+            "cpu_usage": metrics["cpu"],
 
-            "memory_usage": memory,
+            "memory_usage": metrics["memory"],
 
-            "latency": latency,
+            "latency": metrics["latency"],
 
-            "packet_loss": packet_loss,
+            "packet_loss": metrics["packet_loss"],
 
-            "bandwidth": bandwidth,
+            "bandwidth": metrics["bandwidth"],
 
-            "health_score": health_score,
+            "health_score": prediction["health_score"],
 
-            "status": health_status,
+            "status": prediction["prediction"],
 
-            "recommendation": recommendation
+            "risk": prediction["risk"],
+
+            "confidence": prediction["confidence"],
+
+            "recommendation": prediction["recommendation"]
 
         })
 

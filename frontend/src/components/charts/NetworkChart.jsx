@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -8,32 +9,107 @@ import {
   Tooltip,
 } from "recharts";
 
-const data = [
-  { time: "10:00", cpu: 45 },
-  { time: "10:05", cpu: 55 },
-  { time: "10:10", cpu: 60 },
-  { time: "10:15", cpu: 52 },
-  { time: "10:20", cpu: 70 },
-  { time: "10:25", cpu: 65 },
-];
+import api from "../../services/api";
 
 export default function NetworkChart() {
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+  const [chartData, setChartData] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState("");
 
-      <h2 className="text-xl font-bold mb-6">
-        CPU Usage Trend
-      </h2>
+  async function loadChartData() {
+    try {
+      const response = await api.get("/monitoring/");
+
+      const devices = response.data;
+
+      if (devices.length === 0) return;
+
+      const averageCpu =
+        devices.reduce(
+          (sum, device) => sum + device.cpu_usage,
+          0
+        ) / devices.length;
+
+      const now = new Date();
+
+      const timeLabel = now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      setChartData((previous) => {
+        const updated = [
+          ...previous,
+          {
+            time: timeLabel,
+            cpu: Number(averageCpu.toFixed(1)),
+          },
+        ];
+
+        return updated.slice(-10);
+      });
+
+      setLastUpdated(timeLabel);
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    loadChartData();
+
+    const interval = setInterval(loadChartData, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="bg-white rounded-2xl shadow-lg p-6 mt-8">
+
+      <div className="flex justify-between items-center mb-6">
+
+        <div>
+
+          <h2 className="text-xl font-bold">
+            Live CPU Usage Trend
+          </h2>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Average CPU utilization across all devices
+          </p>
+
+        </div>
+
+        <div className="text-right">
+
+          <div className="flex items-center justify-end gap-2">
+
+            <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse"></span>
+
+            <span className="text-green-600 font-semibold">
+              LIVE
+            </span>
+
+          </div>
+
+          <p className="text-xs text-gray-500 mt-1">
+            Last Updated: {lastUpdated || "--"}
+          </p>
+
+        </div>
+
+      </div>
 
       <ResponsiveContainer width="100%" height={350}>
 
-        <LineChart data={data}>
+        <LineChart data={chartData}>
 
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis dataKey="time" />
 
-          <YAxis />
+          <YAxis domain={[0, 100]} />
 
           <Tooltip />
 
@@ -42,6 +118,8 @@ export default function NetworkChart() {
             dataKey="cpu"
             stroke="#2563eb"
             strokeWidth={3}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
           />
 
         </LineChart>
